@@ -151,9 +151,9 @@ namespace DiceGame
             Console.WriteLine($"The result is {userNumber} + {opponentNumber} = {YourResult} (mod {selectedDice.Sides.Count})");
             int UserRoll = selectedDice.Sides[YourResult];
 
-            Console.WriteLine($"My throw is:{UserRoll}");
+            Console.WriteLine($"Your throw is:{UserRoll}");
             if (UserRoll > ComputerRoll)
-                Console.WriteLine($"You win!({UserRoll})>{ComputerRoll})");
+                Console.WriteLine($"You win!({UserRoll}>{ComputerRoll})");
             else if (UserRoll < ComputerRoll)
                 Console.WriteLine($"I win!({ComputerRoll}>{UserRoll})");
             else
