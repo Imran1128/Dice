@@ -6,6 +6,7 @@ namespace DiceGame
     public class Dice
     {
         public List<int> Sides { get; }
+        private static Random rand = new Random();
 
         public Dice(List<int> sides)
         {
@@ -14,9 +15,13 @@ namespace DiceGame
 
         public int Roll()
         {
-            Random rand = new Random();
             int index = rand.Next(Sides.Count);
             return Sides[index];
+        }
+
+        public override string ToString()
+        {
+            return string.Join(",", Sides);
         }
     }
 }

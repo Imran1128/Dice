@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;  
-using System.Text;                 
+using System.Security.Cryptography;
+using System.Text;
 
 namespace DiceGame
 {
@@ -20,6 +20,11 @@ namespace DiceGame
             Console.WriteLine("? - help");
 
             string userFirstChoice = Console.ReadLine();
+            if (userFirstChoice != "X" && userFirstChoice != "?" && userFirstChoice != "1" && userFirstChoice != "0")
+            {
+                Console.WriteLine("Invalid Selection");
+            }
+
             if (userFirstChoice == "X")
             {
                 Environment.Exit(0);
@@ -35,36 +40,36 @@ namespace DiceGame
             Console.WriteLine($"Your selection: {userFirstSelection}");
             Console.WriteLine($"My selection: {computerFirstMove} (KEY={BitConverter.ToString(keyForFirstMove).Replace("-", "")})");
 
-            bool isComputerFirst = computerFirstMove == 1;
-            if (isComputerFirst)
-            {
-                Console.WriteLine("I make the first move.");
-            }
-            else
+            
+            if (computerFirstMove == int.Parse(userFirstChoice))
             {
                 Console.WriteLine("You make the first move.");
             }
-
-            if (isComputerFirst)
+            else
             {
-                PlayRound(computerDice, userDice);
+                Console.WriteLine("I make the first move.");
+            }
+
+            if (computerFirstMove == int.Parse(userFirstChoice))
+            {
+                PlayRound2(userDice, computerDice);
             }
             else
             {
-                PlayRound(userDice, computerDice);
+                PlayRound(computerDice, userDice);
             }
         }
-
         private static void PlayRound(List<Dice> activeDice, List<Dice> opponentDice)
         {
-            var selectedDice = SelectDice(activeDice);
+            var randomDice = GenerateRandomDiceList(opponentDice);
+            var selectedDice = SelectDice(activeDice, randomDice);
             int computerNumber = FairRandomNumberGenerator.GenerateFairRandomNumber(0, selectedDice.Sides.Count - 1);
+            Console.WriteLine("It's time for my throw");
             Console.WriteLine($"I selected a random value in the range 0..{selectedDice.Sides.Count - 1} (HMAC={GenerateHMAC(BitConverter.GetBytes(computerNumber), computerNumber)})");
 
             int userNumber = GetUserNumber(selectedDice.Sides.Count);
             int opponentNumber = FairRandomNumberGenerator.GenerateFairRandomNumber(0, selectedDice.Sides.Count - 1);
 
-            
             if (opponentNumber < 0 || opponentNumber >= selectedDice.Sides.Count)
             {
                 Console.WriteLine("Error: Generated opponent number is out of range.");
@@ -72,37 +77,161 @@ namespace DiceGame
             }
 
             Console.WriteLine($"My number is {opponentNumber} (KEY={BitConverter.ToString(BitConverter.GetBytes(opponentNumber)).Replace("-", "")})");
-            Console.WriteLine($"The result is {userNumber} + {opponentNumber} = {(userNumber + opponentNumber) % selectedDice.Sides.Count} (mod {selectedDice.Sides.Count})");
+            var Computerresult = (userNumber + opponentNumber) % selectedDice.Sides.Count;
+            Console.WriteLine($"The result is {userNumber} + {opponentNumber} = {Computerresult} (mod {selectedDice.Sides.Count})");
+            int ComputerRoll = randomDice.Sides[Computerresult];
 
-            int userRoll = selectedDice.Sides[userNumber];
-            int opponentRoll = selectedDice.Sides[opponentNumber];
-            Console.WriteLine($"Your roll is {userRoll}, my roll is {opponentRoll}");
+            Console.WriteLine($"My throw is:{ComputerRoll}");
+            Console.WriteLine("It's time for Your throw");
+            Console.WriteLine($"I selected a random value in the range 0..{selectedDice.Sides.Count - 1} (HMAC={GenerateHMAC(BitConverter.GetBytes(computerNumber), computerNumber)})");
 
-            if (userRoll > opponentRoll)
-                Console.WriteLine("You win!");
-            else if (userRoll < opponentRoll)
-                Console.WriteLine("I win!");
+            userNumber = GetUserNumber(selectedDice.Sides.Count);
+            opponentNumber = FairRandomNumberGenerator.GenerateFairRandomNumber(0, selectedDice.Sides.Count - 1);
+
+            if (opponentNumber < 0 || opponentNumber >= selectedDice.Sides.Count)
+            {
+                Console.WriteLine("Error: Generated opponent number is out of range.");
+                return;
+            }
+
+            Console.WriteLine($"My number is {opponentNumber} (KEY={BitConverter.ToString(BitConverter.GetBytes(opponentNumber)).Replace("-", "")})");
+            var YourResult = (userNumber + opponentNumber) % selectedDice.Sides.Count;
+            Console.WriteLine($"The result is {userNumber} + {opponentNumber} = {YourResult} (mod {selectedDice.Sides.Count})");
+            int UserRoll = selectedDice.Sides[YourResult];
+
+            Console.WriteLine($"Your throw is:{UserRoll}");
+            if (UserRoll > ComputerRoll)
+                Console.WriteLine($"You win!({UserRoll}>{ComputerRoll})");
+            else if (UserRoll < ComputerRoll)
+                Console.WriteLine($"I win!({ComputerRoll}>{UserRoll})");
             else
                 Console.WriteLine("It's a tie!");
         }
+        private static void PlayRound2(List<Dice> activeDice, List<Dice> opponentDice)
+        {
 
 
+            var selectedDice = SelectDice(activeDice);
+            var randomDice = GenerateRandomDiceList(opponentDice, selectedDice);
+            int computerNumber = FairRandomNumberGenerator.GenerateFairRandomNumber(0, selectedDice.Sides.Count - 1);
+            Console.WriteLine("It's time for my throw");
+            Console.WriteLine($"I selected a random value in the range 0..{selectedDice.Sides.Count - 1} (HMAC={GenerateHMAC(BitConverter.GetBytes(computerNumber), computerNumber)})");
 
-        private static Dice SelectDice(List<Dice> diceList)
+            int userNumber = GetUserNumber(selectedDice.Sides.Count);
+            int opponentNumber = FairRandomNumberGenerator.GenerateFairRandomNumber(0, selectedDice.Sides.Count - 1);
+
+
+            if (opponentNumber < 0 || opponentNumber >= selectedDice.Sides.Count)
+            {
+                Console.WriteLine("Error: Generated opponent number is out of range.");
+                return;
+            }
+
+            Console.WriteLine($"My number is {opponentNumber} (KEY={BitConverter.ToString(BitConverter.GetBytes(opponentNumber)).Replace("-", "")})");
+            var Computerresult = (userNumber + opponentNumber) % selectedDice.Sides.Count;
+            Console.WriteLine($"The result is {userNumber} + {opponentNumber} = {Computerresult} (mod {selectedDice.Sides.Count})");
+            int ComputerRoll = randomDice.Sides[Computerresult];
+
+            Console.WriteLine($"My throw is:{ComputerRoll}");
+            Console.WriteLine("It's time for Your throw");
+            Console.WriteLine($"I selected a random value in the range 0..{selectedDice.Sides.Count - 1} (HMAC={GenerateHMAC(BitConverter.GetBytes(computerNumber), computerNumber)})");
+
+            userNumber = GetUserNumber(selectedDice.Sides.Count);
+            opponentNumber = FairRandomNumberGenerator.GenerateFairRandomNumber(0, selectedDice.Sides.Count - 1);
+
+
+            if (opponentNumber < 0 || opponentNumber >= selectedDice.Sides.Count)
+            {
+                Console.WriteLine("Error: Generated opponent number is out of range.");
+                return;
+            }
+
+            Console.WriteLine($"My number is {opponentNumber} (KEY={BitConverter.ToString(BitConverter.GetBytes(opponentNumber)).Replace("-", "")})");
+            var YourResult = (userNumber + opponentNumber) % selectedDice.Sides.Count;
+            Console.WriteLine($"The result is {userNumber} + {opponentNumber} = {YourResult} (mod {selectedDice.Sides.Count})");
+            int UserRoll = selectedDice.Sides[YourResult];
+
+            Console.WriteLine($"My throw is:{UserRoll}");
+            if (UserRoll > ComputerRoll)
+                Console.WriteLine($"You win!({UserRoll})>{ComputerRoll})");
+            else if (UserRoll < ComputerRoll)
+                Console.WriteLine($"I win!({ComputerRoll}>{UserRoll})");
+            else
+                Console.WriteLine("It's a tie!");
+
+
+        }
+
+
+        public static Dice SelectDice(List<Dice> diceList, Dice excludedDice = null)
         {
             Console.WriteLine("Choose your dice:");
-            for (int i = 0; i < diceList.Count; i++)
+            var filteredDiceList = new List<Dice>();
+
+            foreach (var dice in diceList)
             {
-                Console.WriteLine($"{i}: {string.Join(",", diceList[i].Sides)}");
+                if (dice != excludedDice)
+                {
+                    filteredDiceList.Add(dice);
+                }
             }
+
+            if (filteredDiceList.Count == 0)
+            {
+                Console.WriteLine("No dice available to choose from.");
+                return null;
+            }
+
+            for (int i = 0; i < filteredDiceList.Count; i++)
+            {
+                Console.WriteLine($"{i}: {string.Join(",", filteredDiceList[i].Sides)}");
+            }
+
             Console.WriteLine("X - exit");
             Console.WriteLine("? - help");
+
             string choice = Console.ReadLine();
-            if (choice == "X")
+
+            if (choice.ToUpper() == "X")
                 Environment.Exit(0);
+
             if (choice == "?")
-                HelpTable.DisplayHelpTable(diceList, diceList);
-            return diceList[int.Parse(choice)];
+            {
+                HelpTable.DisplayHelpTable(filteredDiceList, filteredDiceList);
+                return SelectDice(diceList, excludedDice);
+            }
+
+            if (int.TryParse(choice, out int selectedIndex) && selectedIndex >= 0 && selectedIndex < filteredDiceList.Count)
+            {
+                Console.WriteLine($"You selected: {string.Join(",", filteredDiceList[selectedIndex].Sides)}");
+                return filteredDiceList[selectedIndex];
+            }
+
+            Console.WriteLine("Invalid selection, please try again.");
+            return SelectDice(diceList, excludedDice);
+        }
+
+        public static Dice GenerateRandomDiceList(List<Dice> diceList, Dice excludedDice = null)
+        {
+            Random random = new Random();
+            List<Dice> availableDice = new List<Dice>(diceList);
+
+            if (excludedDice != null)
+            {
+                availableDice.Remove(excludedDice);
+            }
+
+            if (availableDice.Count == 0)
+            {
+                Console.WriteLine("No dice available to select randomly.");
+                return null;
+            }
+
+            var randomIndex = random.Next(availableDice.Count);
+            var randomDice = availableDice[randomIndex];
+
+            Console.WriteLine($"I selected: {string.Join(",", randomDice.Sides)}");
+            return randomDice;
         }
 
         private static int GetUserNumber(int max)
@@ -127,6 +256,38 @@ namespace DiceGame
             {
                 var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(value.ToString()));
                 return BitConverter.ToString(hash).Replace("-", "");
+            }
+        }
+
+        private static int GetUserFirstSelection(List<Dice> userDice, List<Dice> computerDice)
+        {
+            while (true)
+            {
+                Console.WriteLine("Try to guess my selection.");
+                Console.WriteLine("0 - 0");
+                Console.WriteLine("1 - 1");
+                Console.WriteLine("X - exit");
+                Console.WriteLine("? - help");
+
+                string userFirstChoice = Console.ReadLine();
+
+                if (userFirstChoice?.ToUpper() == "X")
+                {
+                    Environment.Exit(0);
+                }
+
+                if (userFirstChoice == "?")
+                {
+                    HelpTable.DisplayHelpTable(userDice, computerDice);
+                    continue;
+                }
+
+                if (int.TryParse(userFirstChoice, out int userSelection) && (userSelection == 0 || userSelection == 1))
+                {
+                    return userSelection;
+                }
+
+                Console.WriteLine("Invalid selection. Please choose 0, 1, X, or ?.");
             }
         }
     }
